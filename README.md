@@ -81,51 +81,35 @@ export class TeamManagerComponent implements OnInit {
   teams: Team[];
     
   constructor( private rs: ResourceService ) { }
+  
 
   ngOnInit() {
-    this.getAllTeams();
-  }
-
-  getAllTeams() {
-    this.teams = this.rs.getAll(Team, 'teams');
+    this.rs.getAll(Team, 'teams')
+      .subscribe(teams => this.teams = teams);
   }
  }
 ```
 Our component constructor has an argument of type ResourceService. Upon creation of the component the ResourceService instance we defined earlier as a provider in our root module will be injected and be available for further use in the component.  
-We create a function getAllTeams() which will fetch all the teams from our backend.
+
 To fetch these teams we use the getAll method of the ResourceService. This method requires 2 parameters:  
 + The type of the resource  
   i.e. Team
 + The relative URI path of the resource  
   i.e. 'teams' for 'http://localhost:8080/teams'
 
-The method will immediately return an empty array. When the response comes in, the array will be automatically populated with fully initialised Team instances.  
-
-The array also has an 'observer' property of type Observable<Team> which you can use to listen for incoming data and to handle errors
-
-```typescript
-this.loading = true;
-this.teams = this.rs.getAll(Team, 'teams');
-this.teams.observable.subscribe(
-      undefined, //incoming data is 
-      error => console.log(error),
-      () => this.loading = false
-    );
-``` 
 
 Every Team instance has hypermedia capabilities. i.e. To get all players of a team, you can simply do the following:
 
 ```typescript
 let myTeam = this.teams[0];
-myTeam.players = myTeam.getAll(Player, 'players');
+myTeam.getAll(Player, 'players')
+  .subscribe(players => myTeam.players = players);
 ```
 Parameters:
 + The type of the resource  
   i.e. Player
 + The name of the relation. The value must match a member of the _links object in the HAL response of the owning resource  
-  i.e. 'players'
-
-This method call will return an array of fully initialised 'Player' instances. Again every Player instance has hypermedia capabilities to further traverse our API.  
+  i.e. 'players'  
 
 See the API section of this documentation for all capabilities and options.
 
@@ -139,14 +123,44 @@ https://angular.io/guide/http#intercepting-all-requests-or-responses
 
 ## API
 ### ResourceService
-TODO
+
+```getAll<R extends Resource>(type: { new(): R }, resource: string, options?: { size?: number, sort?: Sort[], params?: [{ key: string, value: string | number }] }): Observable<R[]>```
+
+The method to get all resources of the specified resource type
+
+returns
+
+Observable<R[]>
+
+params
+
+type
+resource
+options
+  
+```get <R extends Resource>(type: { new(): R }, resource: string, id: any): Observable<R>```
+
+```search<R extends Resource>(type: { new(): R }, query: string, options?: { size?: number, sort?: Sort[], params?: [{ key: string, value: string | number }] }): Observable<R[]>```
+
+```create<R extends Resource>(entity: R): Observable<any>```
+
+```delete<R extends Resource>(resource: R): Observable<any>```
+
 ### Resource
-TODO
+
+```getAll<R extends Resource>(type: { new(): R }, relation: string, options?: { size?: number, sort?: Sort[], params?: [{ key: string, value: string | number }] }): Observable<R[]>```
+
+```get <R extends Resource>(type: { new(): R }, relation: string): Observable<R>```
+
+```bind<R extends Resource>(resource: R): Observable<any>```
+
+```unbind(relation: string): Observable<any>```
+
+```add<R extends Resource>(relation: string, resource: R): Observable<any>```
  
 ## Demo Application
 TODO
 
 ## Roadmap
 
-+ Error handling
 + Add support for projections
