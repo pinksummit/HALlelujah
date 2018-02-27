@@ -1,6 +1,6 @@
 {
   "name": "ng2-hallelujah",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Hallelujah! This Angular module offers a HAL/JSON http-client to easily interact with a Spring Data Rest API or any API that implements the Spring Data Rest resource model",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -25,7 +25,8 @@
     "url": "https://github.com/unib1t/HALlelujah.git"
   },
   "devDependencies": {
-    "ng-packagr": "^1.3.0"
+    "ng-packagr": "^1.3.0",
+    "typescript": "2.3.4"
   },
   "dependencies": {
     "@angular/common": "^5.0.0",
