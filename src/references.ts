@@ -1,8 +1,9 @@
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable, throwError} from 'rxjs';
 import {EntityHelper} from './entity-helper';
 import {Page} from './page';
 import {Entity} from './entity';
+import {map} from 'rxjs/operators';
 
 export class CollectionRef {
 
@@ -17,9 +18,10 @@ export class CollectionRef {
     return new FilteredCollectionRef(this.extendUrl(query), this.http);
   }
 
-  get <E extends Entity>(type: { new(): E }): Observable<E[]> {
-    return this.http.get<Object>(this.url)
-      .map<Object, E[]>(data => EntityHelper.initEntityCollection(type, data, this.http));
+  get <E extends Entity>(type: new() => E): Observable<E[]> {
+    return this.http.get<Object>(this.url).pipe(
+      map<Object, E[]>(data => EntityHelper.initEntityCollection(type, data, this.http))
+    );
   }
 
   add(entity: Object): Observable<any> {
@@ -30,7 +32,7 @@ export class CollectionRef {
     if (entity._links.self) {
       return this.http.delete<void>(entity._links.self.href);
     } else {
-      return Observable.throw('Entity not initialised');
+      return throwError('Entity not initialised');
     }
   }
 
@@ -66,9 +68,10 @@ export class FilteredCollectionRef {
     return this;
   }
 
-  get <E extends Entity>(type: { new(): E }): Observable<E[]> {
-    return this.http.get<Object>(this.url, {params: this.queryParams})
-      .map<Object, E[]>(data => EntityHelper.initEntityCollection(type, data, this.http));
+  get <E extends Entity>(type: new() => E): Observable<E[]> {
+    return this.http.get<Object>(this.url, {params: this.queryParams}).pipe(
+      map<Object, E[]>(data => EntityHelper.initEntityCollection(type, data, this.http))
+    );
   }
 
   paginate(size?: number): PaginatedCollectionRef {
@@ -93,10 +96,11 @@ export class PaginatedCollectionRef {
     return this;
   }
 
-  get <E extends Entity>(type: { new(): E }): Observable<Page<E>> {
+  get <E extends Entity>(type: new() => E): Observable<Page<E>> {
     const params = this.size ? this.sorting.append('size', this.size.toString()) : this.sorting;
-    return this.http.get<Object>(this.url, {params: params})
-      .map<Object, Page<E>>(data => EntityHelper.initPage(type, data, this.http));
+    return this.http.get<Object>(this.url, {params: params}).pipe(
+      map<Object, Page<E>>(data => EntityHelper.initPage(type, data, this.http))
+    );
   }
 }
 
@@ -105,9 +109,10 @@ export class EntityRef {
   constructor(private url: string, private http: HttpClient) {
   }
 
-  get <E extends Entity>(type: { new(): E }): Observable<E> {
-    return this.http.get<Object>(this.url)
-      .map<Object, E>(data => EntityHelper.initEntity(type, data, this.http));
+  get <E extends Entity>(type: new() => E): Observable<E> {
+    return this.http.get<Object>(this.url).pipe(
+      map<Object, E>(data => EntityHelper.initEntity(type, data, this.http))
+    );
   }
 }
 
@@ -116,9 +121,10 @@ export class RelatedCollectionRef {
   constructor(private url: string, private http: HttpClient) {
   }
 
-  get <E extends Entity>(type: { new(): E }): Observable<E[]> {
-    return this.http.get<Object>(this.url)
-      .map<Object, E[]>(data => EntityHelper.initEntityCollection(type, data, this.http));
+  get <E extends Entity>(type: new() => E): Observable<E[]> {
+    return this.http.get<Object>(this.url).pipe(
+      map<Object, E[]>(data => EntityHelper.initEntityCollection(type, data, this.http))
+    );
   }
 
   paginate(size: number): PaginatedCollectionRef {
@@ -129,7 +135,7 @@ export class RelatedCollectionRef {
     if (entity._links.self) {
       return this.http.post<void>(this.url, entity._links.self.href, {headers: new HttpHeaders().set('Content-Type', 'text/uri-list')});
     } else {
-      return Observable.throw('Entity not initialised');
+      return throwError('Entity not initialised');
     }
   }
 
@@ -138,7 +144,7 @@ export class RelatedCollectionRef {
       const urls: string[] = entities.map<string>(entity => entity._links.self.href);
       return this.http.put<void>(this.url, urls.join('\n'), {headers: new HttpHeaders().set('Content-Type', 'text/uri-list')});
     } else {
-      return Observable.throw('Entity not initialised');
+      return throwError('Entity not initialised');
     }
   }
 
@@ -153,16 +159,17 @@ export class RelatedEntityRef {
   constructor(private url: string, private http: HttpClient) {
   }
 
-  get <E extends Entity>(type: { new(): E }): Observable<E> {
-    return this.http.get<Object>(this.url)
-      .map<Object, E>(data => EntityHelper.initEntity(type, data, this.http));
+  get <E extends Entity>(type: new() => E): Observable<E> {
+    return this.http.get<Object>(this.url).pipe(
+      map<Object, E>(data => EntityHelper.initEntity(type, data, this.http))
+    );
   }
 
   set <E extends Entity>(entity: E): Observable<void> {
     if (entity._links.self) {
       return this.http.put<void>(this.url, entity._links.self.href, {headers: new HttpHeaders().set('Content-Type', 'text/uri-list')});
     } else {
-      return Observable.throw('Entity not initialised');
+      return throwError('Entity not initialised');
     }
   }
 
