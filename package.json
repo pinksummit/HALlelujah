@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "packagr": "ng-packagr -p ng-package.json",
-    "lint": "tslint src/**/*.ts public_api.ts"
+    "prettier": "prettier --write \"**/*.{js,json,css,scss,less,md,ts,html,component.html}\"",
+    "lint": "tslint src/**/*.ts"
   },
   "keywords": [
     "Spring Data Rest",
@@ -16,8 +17,13 @@
     "Angular 2"
   ],
   "author": "unibit",
-  "contributors": ["cgatian"],
-  "maintainers": ["chrismarth", "pinksummit"],
+  "contributors": [
+    "cgatian"
+  ],
+  "maintainers": [
+    "chrismarth",
+    "pinksummit"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/pinksummit/HALlelujah",
   "issues": {
@@ -33,9 +39,14 @@
     "@angular/compiler": "^10.0.0",
     "@angular/compiler-cli": "^10.0.0",
     "codelyzer": "^6.0.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
     "ng-packagr": "^10.0.0",
+    "prettier": "^2.0.5",
     "rxjs": "~6.6.0",
+    "rxjs-tslint-rules": "^4.33.3",
     "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "~3.9.7",
     "zone.js": "^0.10.3"
   },
@@ -48,5 +59,16 @@
     "rxjs": "~6.6.0",
     "zone.js": "^0.10.3",
     "typescript": "~3.9.7"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run lint"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,scss,less,md,ts,html,component.html}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }

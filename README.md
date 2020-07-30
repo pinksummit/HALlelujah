@@ -9,7 +9,7 @@ Happy coding! Feedback much appreciated!
 ##### Disclaimer: This project is work in progress
 
 ## Installation
+
 ```
 npm install ng2-hallelujah
 ```
-  

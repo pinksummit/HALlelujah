@@ -1,11 +1,10 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Entity} from './entity';
-import {Page} from './page';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Entity } from './entity';
+import { Page } from './page';
 
 // @dynamic
 export class EntityHelper {
-
-  static transformForUpdate(object: Object): Object {
+  static transformForUpdate(object: object): object {
     const result: any = {};
     for (const key in object) {
       if (object[key] instanceof Entity) {
@@ -14,10 +13,10 @@ export class EntityHelper {
         result[key] = object[key];
       }
     }
-    return result as Object;
+    return result as object;
   }
 
-  static initEntity<E extends Entity>(type: new() => E, payload: Object, http: HttpClient): E {
+  static initEntity<E extends Entity>(type: new () => E, payload: object, http: HttpClient): E {
     const entity = new type();
     for (const p in payload) {
       entity[p] = payload[p];
@@ -26,12 +25,13 @@ export class EntityHelper {
     return entity;
   }
 
-  static initEntityCollection<E extends Entity>(type: new() => E, payload: any, http: HttpClient): E[] {
-    return payload._embedded[Object.keys(payload['_embedded'])[0]]
-      .map(item => EntityHelper.initEntity(type, item, http));
+  static initEntityCollection<E extends Entity>(type: new () => E, payload: any, http: HttpClient): E[] {
+    return payload._embedded[Object.keys(payload['_embedded'])[0]].map(item =>
+      EntityHelper.initEntity(type, item, http)
+    );
   }
 
-  static initPage<E extends Entity>(type: new() => E, payload: any, http: HttpClient): Page<E> {
+  static initPage<E extends Entity>(type: new () => E, payload: any, http: HttpClient): Page<E> {
     const page = new Page(type, http);
     page.items = EntityHelper.initEntityCollection(type, payload, http);
     page.totalItems = payload.page ? payload.page.totalElements : page.items.length;
