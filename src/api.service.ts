@@ -1,14 +1,13 @@
-import {Inject, Injectable, InjectionToken} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {CollectionRef, EntityRef} from './references';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { CollectionRef } from './collection-ref';
+import { EntityRef } from './entity-ref';
 
 export let API_URL = new InjectionToken('api.uri');
 
 @Injectable()
 export class ApiService {
-
-  constructor(@Inject(API_URL) private api_url: string, private http: HttpClient) {
-  }
+  constructor(@Inject(API_URL) private api_url: string, private http: HttpClient) {}
 
   collection(name: string): CollectionRef {
     return new CollectionRef(this.getUrl(name), this.http);
@@ -28,5 +27,4 @@ export class ApiService {
     }
     return url;
   }
-
 }

@@ -1,16 +1,14 @@
-import {Observable} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {EntityHelper} from './entity-helper';
-import {RelatedCollectionRef, RelatedEntityRef} from './references';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { EntityHelper } from './entity-helper';
+import { RelatedEntityRef } from './related-entity-ref';
+import { RelatedCollectionRef } from './related-collection-ref';
 
 export abstract class Entity {
-
   http: HttpClient;
   _links: any;
 
-  constructor() {
-  }
-
+  protected constructor() {}
 
   relatedCollection(name: string): RelatedCollectionRef {
     if (this._links[name]) {
@@ -30,19 +28,23 @@ export abstract class Entity {
 
   save(): Observable<void> {
     if (this._links.self) {
-      return this.http.put<void>(EntityHelper.stripTemplatedUrl(this._links.self.href),
-        EntityHelper.transformForUpdate(this));
+      return this.http.put<void>(
+        EntityHelper.stripTemplatedUrl(this._links.self.href),
+        EntityHelper.transformForUpdate(this)
+      );
     } else {
       throw new Error('Entity not initialised');
     }
   }
 
-  update(object: Object): Observable<void> {
+  update(object: object): Observable<void> {
     if (this._links.self) {
-      return this.http.patch<void>(EntityHelper.stripTemplatedUrl(this._links.self.href), EntityHelper.transformForUpdate(object));
+      return this.http.patch<void>(
+        EntityHelper.stripTemplatedUrl(this._links.self.href),
+        EntityHelper.transformForUpdate(object)
+      );
     } else {
       throw new Error('Entity not initialised');
     }
   }
-
 }
