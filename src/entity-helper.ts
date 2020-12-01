@@ -1,13 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Entity } from './entity';
-import { Page } from './page';
+import { EntityBase } from './entity-base';
 
 // @dynamic
 export class EntityHelper {
   static transformForUpdate(object: object): object {
     const result: any = {};
     for (const key in object) {
-      if (object[key] instanceof Entity) {
+      if (object[key] instanceof EntityBase) {
         result[key] = EntityHelper.stripTemplatedUrl(object[key]['_links']['self']['href']);
       } else if (object[key] !== '_links') {
         result[key] = object[key];
@@ -16,7 +15,7 @@ export class EntityHelper {
     return result as object;
   }
 
-  static initEntity<E extends Entity>(type: new () => E, payload: object, http: HttpClient): E {
+  static initEntity<E extends EntityBase>(type: new () => E, payload: object, http: HttpClient): E {
     const entity = new type();
     for (const p in payload) {
       entity[p] = payload[p];
@@ -25,24 +24,10 @@ export class EntityHelper {
     return entity;
   }
 
-  static initEntityCollection<E extends Entity>(type: new () => E, payload: any, http: HttpClient): E[] {
+  static initEntityCollection<E extends EntityBase>(type: new () => E, payload: any, http: HttpClient): E[] {
     return payload._embedded[Object.keys(payload['_embedded'])[0]].map(item =>
       EntityHelper.initEntity(type, item, http)
     );
-  }
-
-  static initPage<E extends Entity>(type: new () => E, payload: any, http: HttpClient): Page<E> {
-    const page = new Page(type, http);
-    page.items = EntityHelper.initEntityCollection(type, payload, http);
-    page.totalItems = payload.page ? payload.page.totalElements : page.items.length;
-    page.totalPages = payload.page ? payload.page.totalPages : 1;
-    page.pageNumber = payload.page ? payload.page.number : 1;
-    page.selfUrl = payload._links.self ? EntityHelper.stripTemplatedUrl(payload._links.self.href) : undefined;
-    page.nextUrl = payload._links.next ? EntityHelper.stripTemplatedUrl(payload._links.next.href) : undefined;
-    page.prevUrl = payload._links.prev ? EntityHelper.stripTemplatedUrl(payload._links.prev.href) : undefined;
-    page.firstUrl = payload._links.first ? EntityHelper.stripTemplatedUrl(payload._links.first.href) : undefined;
-    page.lastUrl = payload._links.last ? EntityHelper.stripTemplatedUrl(payload._links.last.href) : undefined;
-    return page;
   }
 
   static stripTemplatedUrl(url: string): string {
