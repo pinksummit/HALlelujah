@@ -1,9 +1,10 @@
 import { Observable, throwError } from 'rxjs';
-import { EntityHelper } from './entity-helper';
 import { HttpClient } from '@angular/common/http';
 import { Entity } from './entity';
 import { map } from 'rxjs/operators';
 import { SortOptions } from './sort-options';
+import { EntityBase } from './entity-base';
+import { EntityHelper } from './entity-helper';
 
 export class Page<E extends Entity> {
   totalPages = 1;
@@ -23,9 +24,23 @@ export class Page<E extends Entity> {
 
   constructor(private type: new () => E, private http: HttpClient) {}
 
+  static initPage<E extends EntityBase>(type: new () => E, payload: any, http: HttpClient): Page<E> {
+    const page = new Page(type, http);
+    page.items = EntityHelper.initEntityCollection(type, payload, http);
+    page.totalItems = payload.page ? payload.page.totalElements : page.items.length;
+    page.totalPages = payload.page ? payload.page.totalPages : 1;
+    page.pageNumber = payload.page ? payload.page.number : 1;
+    page.selfUrl = payload._links.self ? EntityHelper.stripTemplatedUrl(payload._links.self.href) : undefined;
+    page.nextUrl = payload._links.next ? EntityHelper.stripTemplatedUrl(payload._links.next.href) : undefined;
+    page.prevUrl = payload._links.prev ? EntityHelper.stripTemplatedUrl(payload._links.prev.href) : undefined;
+    page.firstUrl = payload._links.first ? EntityHelper.stripTemplatedUrl(payload._links.first.href) : undefined;
+    page.lastUrl = payload._links.last ? EntityHelper.stripTemplatedUrl(payload._links.last.href) : undefined;
+    return page;
+  }
+
   next(): Observable<Page<E>> {
     if (this.nextUrl) {
-      return this.http.get(this.nextUrl).pipe(map(data => EntityHelper.initPage(this.type, data, this.http)));
+      return this.http.get(this.nextUrl).pipe(map(data => Page.initPage(this.type, data, this.http)));
     } else {
       return throwError('No next page available');
     }
@@ -33,7 +48,7 @@ export class Page<E extends Entity> {
 
   prev(): Observable<Page<E>> {
     if (this.prevUrl) {
-      return this.http.get(this.nextUrl).pipe(map(data => EntityHelper.initPage(this.type, data, this.http)));
+      return this.http.get(this.nextUrl).pipe(map(data => Page.initPage(this.type, data, this.http)));
     } else {
       return throwError('No previous page available');
     }
@@ -41,7 +56,7 @@ export class Page<E extends Entity> {
 
   first(): Observable<Page<E>> {
     if (this.firstUrl) {
-      return this.http.get(this.nextUrl).pipe(map(data => EntityHelper.initPage(this.type, data, this.http)));
+      return this.http.get(this.nextUrl).pipe(map(data => Page.initPage(this.type, data, this.http)));
     } else {
       return throwError('No first page available');
     }
@@ -49,7 +64,7 @@ export class Page<E extends Entity> {
 
   last(): Observable<Page<E>> {
     if (this.lastUrl) {
-      return this.http.get(this.nextUrl).pipe(map(data => EntityHelper.initPage(this.type, data, this.http)));
+      return this.http.get(this.nextUrl).pipe(map(data => Page.initPage(this.type, data, this.http)));
     } else {
       return throwError('No last page available');
     }

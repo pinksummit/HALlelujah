@@ -1,4 +1,3 @@
-import { EntityHelper } from './entity-helper';
 import { Page } from './page';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -26,7 +25,7 @@ export class PaginatedCollectionRef {
     return this.http
       .get<object>(this.url, { params })
       .pipe(
-        map<object, Page<E>>(data => EntityHelper.initPage(type, data, this.http))
+        map<object, Page<E>>(data => Page.initPage(type, data, this.http))
       );
   }
 }

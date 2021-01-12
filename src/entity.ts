@@ -3,12 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { EntityHelper } from './entity-helper';
 import { RelatedEntityRef } from './related-entity-ref';
 import { RelatedCollectionRef } from './related-collection-ref';
+import { EntityBase } from './entity-base';
 
-export abstract class Entity {
+export abstract class Entity extends EntityBase {
   http: HttpClient;
   _links: any;
-
-  protected constructor() {}
 
   relatedCollection(name: string): RelatedCollectionRef {
     if (this._links[name]) {
