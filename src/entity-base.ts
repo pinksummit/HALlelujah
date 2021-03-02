@@ -7,7 +7,7 @@ export abstract class EntityBase {
   http: HttpClient;
   _links: any;
 
-  protected constructor() {}
+  constructor() {}
 
   abstract relatedCollection(name: string): RelatedCollectionRef;
   abstract relatedEntity(name: string): RelatedEntityRef;
